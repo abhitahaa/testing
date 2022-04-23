@@ -2,60 +2,6 @@ provider "aws" {
   region = "us-east-1"
 }
 
-resource "aws_iam_role" "apigateway_role" {
-  name               = "testapis3role"
-  assume_role_policy = <<EOF
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Sid": "",
-            "Effect": "Allow",
-            "Principal": {
-                "Service": [
-                    "lambda.amazonaws.com"
-                    ,
-                    "apigateway.amazonaws.com"
-                ]
-            },
-            "Action": "sts:AssumeRole"
-        }
-    ]
-}
-EOF
-}
-
-resource "aws_iam_policy" "iam_policy_for_apigateway" {
-
-  name        = "test"
-  path        = "/"
-  description = "My test policy"
-
-  # Terraform's "jsonencode" function converts a
-  # Terraform expression result to valid JSON syntax.
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = [
-          "lambda:InvokeFunction",
-          "s3.GetObject",
-        ]
-        Effect   = "Allow"
-        Resource = "*"
-      },
-    ]
-  })
-}
-
-
-### Attach IAM Policy to IAM Role ###
-resource "aws_iam_role_policy_attachment" "attach_iam_policyattachest" {
-  role       = aws_iam_role.apigateway_role.arn
-  policy_arn = aws_iam_policy.iam_policy_for_apigateway.arn
-}
-
-
 
 
 data "archive_file" "zip_the_python_code" {
@@ -66,8 +12,8 @@ data "archive_file" "zip_the_python_code" {
 
 resource "aws_lambda_function" "terraform_lambda_func" {
   filename         = "${path.module}/python/lambda_function.zip"
-  function_name    = "hi_Lambda_Function"
-  role             = aws_iam_role.apigateway_role.arn
+  function_name    = "lambda_function"
+  role             = "arn:aws:iam::384941664403:role/test_Lambda_Function_Role"
   handler          = "lambda_function.lambda_handler"
   runtime          = "python3.8"
   source_code_hash = data.archive_file.zip_the_python_code.output_base64sha256
@@ -141,14 +87,14 @@ resource "aws_api_gateway_integration" "lambda_get" {
 
 resource "aws_api_gateway_deployment" "api_deployment" {
   rest_api_id = aws_api_gateway_rest_api.api.id
-  triggers = {
-    redeployment = sha1(jsonencode(aws_api_gateway_rest_api.api.body))
-  }
+  #triggers = {
+  #  redeployment = sha1(jsonencode(aws_api_gateway_rest_api.api.body))
+  #}
 
-  lifecycle {
-    create_before_destroy = true
-  }
-  depends_on = [aws_api_gateway_integration.lambda_test]
+  #lifecycle {
+  #  create_before_destroy = true
+  #}
+  depends_on = [aws_api_gateway_integration.lambda_test,aws_api_gateway_method.post]
 
 }
 
