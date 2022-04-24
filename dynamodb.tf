@@ -172,7 +172,7 @@ resource "aws_api_gateway_deployment" "exampleApiDeployment" {
   depends_on = [aws_api_gateway_integration.get-example-integration]
 
   rest_api_id = aws_api_gateway_rest_api.exampleApi.id
-  stage_name  = var.stage_name
+  stage_name  = "test"
 
   variables = {
     "deployedAt" = timestamp()
