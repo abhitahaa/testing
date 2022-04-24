@@ -1,3 +1,8 @@
+variable "aws_region" {}
+  
+  
+  
+
 # Create dynamo db table
 resource "aws_dynamodb_table" "example" {
   name         = "example"
