@@ -103,7 +103,7 @@ resource "aws_api_gateway_integration" "get-example-integration" {
   http_method             = aws_api_gateway_method.get-example-method.http_method
   type                    = "AWS"
   integration_http_method = "POST"
-  uri                     = "arn:aws:apigateway:${var.aws_region}:dynamodb:action/Query"
+  uri                     = "arn:aws:apigateway:us-east-1:dynamodb:action/Query"
   credentials             = aws_iam_role.api_gateway_dynamodb_example.arn
   request_templates = {
     "application/json" = <<EOF
